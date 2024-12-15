@@ -1,7 +1,6 @@
 import hashlib
 import hmac
 import re
-import argparse
 
 def deterministic_secure_shuffle(arr, secret):
     # Use the secret to generate a key
@@ -54,11 +53,25 @@ def validate_secret(secret):
 
 # Main function
 def main():
-    # Argument parsing
-    parser = argparse.ArgumentParser(description="A program to shuffle and map numbers or words deterministically.")
-    parser.add_argument("--reverse", type=str, choices=['true', 'false'], default='false', help="reverse the mapping or not.")
-    parser.add_argument("--mode", type=str, choices=['n2n', 'w2w', 'n2w', 'w2n'], default='n2n', help="Mapping mode (n2n: number-to-number, w2w: word-to-word, etc.).")
-    args = parser.parse_args()
+    isReverse = False
+    # get the reverse and mode arguments
+    while True:
+        answer = input("Do you want to reverse the mapping? (y/n): ").strip().lower()
+        if answer == 'y':
+            isReverse = True
+            break
+        elif answer == 'n':
+            isReverse = False
+            break
+        else:
+            print("Please enter 'y' or 'n'.")
+
+    while True:
+        modeInput = input("Enter the mode (n2n, w2w, n2w, w2n): ").strip().lower()
+        if modeInput in ['n2n', 'w2w', 'n2w', 'w2n']:
+            break
+        else:
+            print("Please enter 'n2n', 'w2w', 'n2w', or 'w2n'.")
 
     # Step 1: Read data from the file, also store to the numberStrWordMap
     with open('src/dictionary.txt', 'r', encoding='utf-8') as f:
@@ -85,12 +98,12 @@ def main():
         error = validate_secret(secret)
         if error is None:
             # Compute checksum (numeric)
-            checksum_bytes = hashlib.sha256(secret.encode('utf-8')).digest()
-            checksum_num = int.from_bytes(checksum_bytes, 'big')
+            checksumBytes = hashlib.sha256(secret.encode('utf-8')).digest()
+            checksumNum = int.from_bytes(checksumBytes, 'big')
             # Show only first 5 digits
-            checksum_str = str(checksum_num)
-            short_checksum = checksum_str[:5]
-            print("Your secret's checksum:", short_checksum)
+            checksumStr = str(checksumNum)
+            shortChecksum = checksumStr[:5]
+            print("Your secret's checksum:", shortChecksum)
             
             confirm = input("Is this correct? (y/n): ").strip().lower()
             if confirm == 'y':
@@ -99,7 +112,7 @@ def main():
                 # User wants to re-enter secret
                 continue
             else:
-                print("Please enter 'y' or 'n'.")
+                print("Please enter 'y' or 'n' to confirm.")
                 continue
         else:
             print("Error:", error)
@@ -107,22 +120,30 @@ def main():
     # Step 4: Use the above deterministic_secure_shuffle to shuffle securely and reproducibly
     newNumbers = deterministic_secure_shuffle(newNumbers, secret)
 
-    # Step 5: if run with python main.py --reverse=True, sort by originalNumbers and print in reverse order
+    # Step 5: if user wants to reverse the mapping, print the pairs (new, original) instead of (original, new)
     output = zip(originalNumbers, newNumbers)
-    if args.reverse == 'true':
+    if isReverse:
         output = sorted(zip(newNumbers, originalNumbers), key=lambda x: x[0])
 
     # Step 6: Print the mapping depend on the mode
-    print() # Print a newline for better readability
+    outputLines = []
     for a, b in output:
-        if args.mode == "n2n":
-            print(f"{a} => {b}")
-        elif args.mode == "w2w":
-            print(f"{numberStrWordMap[a]} => {numberStrWordMap[b]}")
-        elif args.mode == "n2w":
-            print(f"{a} => {numberStrWordMap[b]}")
-        elif args.mode == "w2n":
-            print(f"{numberStrWordMap[a]} => {b}")
+        if modeInput == "n2n":
+            outputLines.append(f"{a} => {b}")
+        elif modeInput == "w2w":
+            outputLines.append(f"{numberStrWordMap[a]} => {numberStrWordMap[b]}")
+        elif modeInput == "n2w":
+            outputLines.append(f"{a} => {numberStrWordMap[b]}")
+        elif modeInput == "w2n":
+            outputLines.append(f"{numberStrWordMap[a]} => {b}")
+
+    # Write to file named ".map-{5 checksum digits}"
+    if shortChecksum is not None:
+        filename = f".map-{shortChecksum}"
+        with open(filename, 'w', encoding='utf-8') as f:
+            for line in outputLines:
+                f.write(line + '\n')
+        print(f"Mapping results have been written to {filename}")
 
 if __name__ == "__main__":
     main()
