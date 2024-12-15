@@ -79,6 +79,11 @@ opinion => able
 quick => about
 ```
 
+## cheksum (optioal)
+The script will generate a checksum based on the secret. The checksum is used to ensure the user has entered the correct secret. The user can then use the checksum to verify the correctness of the input secret. To be more specific, the user can store both the secret and the checksum in their password manager. When they want to recover the wallet, they can then manually enter the secret (withour copy-paste) and use the checksum to verify the correctness of the secret.
+
+In this way, the user can avoid the risk of the secret being copied by malware.
+
 ## Example
 Suppose the secret is `this-is-a-secret-for-demo@202412`, the generated mapping is like this:
 ```text
