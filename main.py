@@ -84,8 +84,25 @@ def main():
         secret = input("Please enter a secret: ")
         error = validate_secret(secret)
         if error is None:
-            break
-        print("Error:", error)
+            # Compute checksum (numeric)
+            checksum_bytes = hashlib.sha256(secret.encode('utf-8')).digest()
+            checksum_num = int.from_bytes(checksum_bytes, 'big')
+            # Show only first 5 digits
+            checksum_str = str(checksum_num)
+            short_checksum = checksum_str[:5]
+            print("Your secret's checksum:", short_checksum)
+            
+            confirm = input("Is this correct? (y/n): ").strip().lower()
+            if confirm == 'y':
+                break
+            elif confirm == 'n':
+                # User wants to re-enter secret
+                continue
+            else:
+                print("Please enter 'y' or 'n'.")
+                continue
+        else:
+            print("Error:", error)
 
     # Step 4: Use the above deterministic_secure_shuffle to shuffle securely and reproducibly
     newNumbers = deterministic_secure_shuffle(newNumbers, secret)
