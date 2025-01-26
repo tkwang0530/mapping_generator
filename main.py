@@ -56,22 +56,40 @@ def main():
     isReverse = False
     # get the reverse and mode arguments
     while True:
-        answer = input("Do you want to reverse the mapping? (y/n): ").strip().lower()
-        if answer == 'y':
-            isReverse = True
-            break
-        elif answer == 'n':
+        print("Select the operation:")
+        print("1. Generate secret dictionary to encrypt mnemonic")
+        print("2. Generate reverse secret dictionary to recover mnemonic")
+        answer = input("Enter the number corresponding to the operation (1 or 2): ").strip()
+        if answer == '1':
             isReverse = False
             break
-        else:
-            print("Please enter 'y' or 'n'.")
-
-    while True:
-        modeInput = input("Enter the mode (n2n, w2w, n2w, w2n): ").strip().lower()
-        if modeInput in ['n2n', 'w2w', 'n2w', 'w2n']:
+        elif answer == '2':
+            isReverse = True
             break
         else:
-            print("Please enter 'n2n', 'w2w', 'n2w', or 'w2n'.")
+            print("Please enter '1' or '2'.")
+
+    while True:
+        print("Select the mode:")
+        print("1. n2n (Number-to-number)")
+        print("2. w2w (Word-to-word)")
+        print("3. n2w (Number-to-word)")
+        print("4. w2n (Word-to-number)")
+        modeInput = input("Enter the number corresponding to the mode (1, 2, 3, 4): ").strip()
+        if modeInput == '1':
+            modeInput = 'n2n'
+            break
+        elif modeInput == '2':
+            modeInput = 'w2w'
+            break
+        elif modeInput == '3':
+            modeInput = 'n2w'
+            break
+        elif modeInput == '4':
+            modeInput = 'w2n'
+            break
+        else:
+            print("Please enter '1', '2', '3', or '4'.")
 
     # Step 1: Read data from the file, also store to the numberStrWordMap
     with open('src/dictionary.txt', 'r', encoding='utf-8') as f:
